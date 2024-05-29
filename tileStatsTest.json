@@ -1,0 +1,249 @@
+[
+	{
+		"Name": "Base_0",
+		"tileName": "Base_0",
+		"rotation": 0,
+		"mappings":
+		{
+			"x+":
+			{
+				"dirToCountMap":
+				{
+					"InnerCorner_1": 2
+				}
+			},
+			"x-":
+			{
+				"dirToCountMap":
+				{
+					"InnerCorner_1": 5,
+					"InnerCorner_2": 3
+				}
+			}
+		}
+	},
+	{
+		"Name": "InnerCorner_1",
+		"tileName": "InnerCorner_1",
+		"rotation": 1,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "InnerCorner_2",
+		"tileName": "InnerCorner_2",
+		"rotation": 2,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "Corner_0",
+		"tileName": "Corner_0",
+		"rotation": 0,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "Corner_3",
+		"tileName": "Corner_3",
+		"rotation": 3,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "FloorEdge_0",
+		"tileName": "FloorEdge_0",
+		"rotation": 0,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "FloorEdge_2",
+		"tileName": "FloorEdge_2",
+		"rotation": 2,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "Corner_1",
+		"tileName": "Corner_1",
+		"rotation": 1,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "Corner_2",
+		"tileName": "Corner_2",
+		"rotation": 2,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "FloorEdge_1",
+		"tileName": "FloorEdge_1",
+		"rotation": 1,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "WallTurn_0",
+		"tileName": "WallTurn_0",
+		"rotation": 0,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "WallTurn_1",
+		"tileName": "WallTurn_1",
+		"rotation": 1,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "WallTurn_2",
+		"tileName": "WallTurn_2",
+		"rotation": 2,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "WallTurn_3",
+		"tileName": "WallTurn_3",
+		"rotation": 3,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "Wall_3",
+		"tileName": "Wall_3",
+		"rotation": 3,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "Wall_1",
+		"tileName": "Wall_1",
+		"rotation": 1,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "WallTurnOuter_1",
+		"tileName": "WallTurnOuter_1",
+		"rotation": 1,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "WallTurnOuter_2",
+		"tileName": "WallTurnOuter_2",
+		"rotation": 2,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "Wall_0",
+		"tileName": "Wall_0",
+		"rotation": 0,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "CeilingCorner_0",
+		"tileName": "CeilingCorner_0",
+		"rotation": 0,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "CeilingCorner_1",
+		"tileName": "CeilingCorner_1",
+		"rotation": 1,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "CeilingCorner_2",
+		"tileName": "CeilingCorner_2",
+		"rotation": 2,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "CeilingCorner_3",
+		"tileName": "CeilingCorner_3",
+		"rotation": 3,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "Ceiling_0",
+		"tileName": "Ceiling_0",
+		"rotation": 0,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "CeilingEdge_0",
+		"tileName": "CeilingEdge_0",
+		"rotation": 0,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "CeilingEdge_1",
+		"tileName": "CeilingEdge_1",
+		"rotation": 1,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "CeilingEdge_2",
+		"tileName": "CeilingEdge_2",
+		"rotation": 2,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "CeilingInnerCorner_0",
+		"tileName": "CeilingInnerCorner_0",
+		"rotation": 0,
+		"mappings":
+		{
+		}
+	},
+	{
+		"Name": "CeilingInnerCorner_1",
+		"tileName": "CeilingInnerCorner_1",
+		"rotation": 1,
+		"mappings":
+		{
+		}
+	}
+]
