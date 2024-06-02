@@ -34,11 +34,33 @@ to loop through all selected FRI parts, count their neighbors, normalized counts
 
 The final step was to import all FRI parts and the .json file into my UE5 project.
 
+![image](https://github.com/AlenLeban/InfiniteFRI/assets/99842431/b87a9caa-1baa-4c73-80b8-ed09abacccdf)
+
 My version of WFC algorithm is generalized for 3D generation on a grid of infinite size, but generated in smaller bounded chunks. This allows us generate larger areas by spawning generating chunks that overlap with existing generated chunks to ensure connectivity.
-Because each chunk generates inside the bounds only, 
+Because each chunk generates inside its bounds only, it assumes all tiles are possible outside of bounds as neighbors. While this allows connectivity between chunks, it's difficult to ensure successful chunk generation if it overlaps with other chunks, as the asummption can lead to impossible combinations of tiles.
+
+Therefore, the playable demo allows the user to spawn and delete chunks to try out different generations and delete ones that don't allow generating further neighbors.
+
+https://github.com/AlenLeban/InfiniteFRI/assets/99842431/666449b3-733e-49ca-a08b-5060efcd9603
+
+Failure rate can be lowered by introducting more tiles that can connect to existing chunks (like some sort of "connectors") at the cost of longer solving times.
+
+## Results ##
+
+Here are some flythroughs of generated structures I thought were interesting.
 
 
+https://github.com/AlenLeban/InfiniteFRI/assets/99842431/6a6e57c8-bb00-409a-8d72-a2b88aa93539
 
+https://github.com/AlenLeban/InfiniteFRI/assets/99842431/46d68cac-78b2-4620-9beb-3e7f9e8f46e3
+
+https://github.com/AlenLeban/InfiniteFRI/assets/99842431/eddf9a1c-a12c-458e-bc52-52fc433626f2
+
+https://github.com/AlenLeban/InfiniteFRI/assets/99842431/165b4e14-f8ff-4bfc-b791-8babd14bd9db
+
+## Demo ##
+
+If you wish to try out the demo without having to download the engine, download the .exe from the following link: https://drive.google.com/file/d/1xBwAjc6dAFdxBH8KjLx7ls6IYSz15ky7/view?usp=drive_link
 
 
 
