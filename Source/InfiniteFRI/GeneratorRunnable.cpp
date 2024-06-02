@@ -5,9 +5,8 @@
 #include "Engine/World.h"
 
 
-FGeneratorRunnable::FGeneratorRunnable(UWorld* world, AFRIGenerator* generatorR, AWorldGenerator* worldGeneratorR, const FVector& loc)
+FGeneratorRunnable::FGeneratorRunnable(UWorld* world, AFRIGenerator* generatorR, AWorldGenerator* worldGeneratorR)
 {
-	location = loc;
 	worldRef = world;
 	generatorRef = generatorR;
 	worldGeneratorRef = worldGeneratorR;
@@ -37,16 +36,10 @@ uint32 FGeneratorRunnable::Run()
 	/*while (bRunThread)
 	{*/
 
-	TArray<AFRIGenerator*> neighbors;
 
-	{
-		FScopeLock Lock(&MyCriticalSection);
-
-		neighbors = worldGeneratorRef->GetNeighborGenerators(location);
-	}
 
 	//generatorRef->GenerateFRI(TArray<AFRIGenerator*>{});
-	generatorRef->GenerateFRI(neighbors);
+	generatorRef->GenerateFRI();
 	
 	AsyncTask(ENamedThreads::GameThread, [this]() {
 		worldGeneratorRef->OnGeneratorFinished(generatorRef, this);

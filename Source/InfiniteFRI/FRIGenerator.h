@@ -45,6 +45,9 @@ public:
 
 	UPROPERTY()
 	TArray<UGridCell*> cellHeap;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	int retries = -1;
 	
 	UPROPERTY()
 	TArray<float> stateEntropies;
@@ -82,7 +85,7 @@ public:
 	
 
 	UFUNCTION(BlueprintCallable)
-	int GenerateFRI(TArray<AFRIGenerator*> neighborGrids, bool materialize = false);
+	int GenerateFRI(bool materialize = false);
 
 	UFUNCTION()
 	void CollapseEverythingToEmpty();
@@ -127,7 +130,7 @@ public:
 	void CollapseCellAtToState(const FIntVector& location, int state, bool markCollapsed = true);
 
 	UFUNCTION()
-	void CopyConnectToGridTiles();
+	bool CopyConnectToGridTiles();
 
 	UFUNCTION()
 	void CopyNeighborGrids();
@@ -137,5 +140,11 @@ public:
 
 	UFUNCTION()
 	void CopyCellsToWorldGenerator();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateProgressVisual();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnGeneratorFinished();
 
 };

@@ -3,6 +3,7 @@
 
 #include "WorldGenerator.h"
 #include "GeneratorRunnable.h"
+#include "Engine/StaticMeshActor.h"
 #include "GridCell.h"
 
 // Sets default values
@@ -22,8 +23,10 @@ void AWorldGenerator::BeginPlay()
 	}
 	generatorOffset = stride * 200;
 	locationToGeneratorMap = TMap<FVector, AFRIGenerator*>();
-	currentGeneratorLocations.Add(FVector(0, 0, 0));
-	GenerateNextRooms(currentGeneratorLocations);
+	if (automaticRadiusGeneration) {
+		currentGeneratorLocations.Add(FVector(0, 0, 0));
+		GenerateNextRooms(currentGeneratorLocations);
+	}
 }
 
 void AWorldGenerator::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -46,8 +49,11 @@ void AWorldGenerator::OnGeneratorFinished(AFRIGenerator* genRef, FGeneratorRunna
 {
 	genRef->CopyCellsToWorldGenerator();
 	genRef->MaterializeGrid();
-	generatorRunnables.Remove(runnable);
+	int nOfRemovedRunnables = generatorRunnables.Remove(runnable);
 	delete runnable;
+	if (nOfRemovedRunnables == 0) {
+		return;
+	}
 	if (generatorRunnables.IsEmpty()) {
 		if (generationRadius > currentRadius) {
 			TArray<FVector> neighborUnitLocations = GetNeighborUnitLocationsOfGenerators(currentGeneratorLocations);
@@ -123,11 +129,11 @@ TArray<AFRIGenerator*> AWorldGenerator::GetNeighborGenerators(const FVector& loc
 
 void AWorldGenerator::LaunchNextGenerator()
 {
-	AFRIGenerator* nextGenerator;
 	FVector location;
+	AFRIGenerator* nextGenerator;
 	generatorLocationsQueue.Dequeue(location);
 	generatorQueue.Dequeue(nextGenerator);
-	generatorRunnables.Add(new FGeneratorRunnable(GetWorld(), nextGenerator, this, location));
+	generatorRunnables.Add(new FGeneratorRunnable(GetWorld(), nextGenerator, this));
 }
 
 TArray<FVector> AWorldGenerator::GetNeighborUnitLocationsOfGenerators(TArray<FVector> locations)
@@ -154,5 +160,51 @@ UGridCell* AWorldGenerator::GetCellAtWorldLocation(AFRIGenerator* askingGenerato
 		return nullptr;
 	}
 	return gridCellsMap[location];
+}
+
+void AWorldGenerator::SetCellAt(const FIntVector& location, UGridCell* newCell)
+{
+	if (newCell->isCollapsed && gridCellsMap.Contains(location) && gridCellsMap[location] != newCell) {
+		if (gridCellsMap[location]->staticMeshActorRef != nullptr) {
+			gridCellsMap[location]->staticMeshActorRef->Destroy();
+		}
+	}
+	gridCellsMap.Add(location, newCell);
+}
+
+void AWorldGenerator::SpawnAndLaunchGeneratorAtUnitLocation(const FIntVector& location)
+{
+	FVector spawnLocation = FVector(location) * tileSize + GetActorLocation();
+	AFRIGenerator* generatorRef = GetWorld()->SpawnActor<AFRIGenerator>(generatorClass, spawnLocation, FRotator());
+	if (generatorRef == nullptr) {
+		UE_LOG(LogTemp, Error, TEXT("GeneratorRef failed to spawn"));
+		return;
+	}
+	// create square generators
+	generatorRef->gridWidth = generatorSize;
+	generatorRef->gridLength = generatorSize;
+	generatorRef->gridHeight = generatorSize;
+	generatorRef->worldGeneratorRef = this;
+	generatorRef->generatorWorldIntVector = location;
+	generatorRunnables.Add(new FGeneratorRunnable(GetWorld(), generatorRef, this));
+}
+
+void AWorldGenerator::DestroyTilesAtUnitLocation(const FIntVector& location)
+{
+	for (int i = 0; i < generatorSize; i++) {
+		for (int j = 0; j < generatorSize; j++) {
+			for (int k = 0; k < generatorSize; k++) {
+				FIntVector offset = FIntVector(i, j, k);
+				FIntVector offsetLocation = location + offset;
+				if (!gridCellsMap.Contains(offsetLocation)) {
+					continue;
+				}
+				if (gridCellsMap[offsetLocation]->staticMeshActorRef != nullptr) {
+					gridCellsMap[offsetLocation]->staticMeshActorRef->Destroy();
+				}
+				gridCellsMap.Remove(offsetLocation);
+			}
+		}
+	}
 }
 

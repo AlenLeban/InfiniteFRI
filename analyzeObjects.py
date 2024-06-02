@@ -86,7 +86,7 @@ class WFCAnalyzeOperator(bpy.types.Operator):
             if withRotName not in tilesDict.keys():
                 tilesDict[withRotName] = TileStats(noNumberName, rot_z, {"x+": {"dirToCountMap":{}}, "x-": {"dirToCountMap":{}}, "y+": {"dirToCountMap":{}}, "y-": {"dirToCountMap":{}}, "z+": {"dirToCountMap":{}}, "z-": {"dirToCountMap":{}}})
             
-        tilesDict["Empty_0"] = TileStats("Empty", 0, {"x+": {"dirToCountMap":{}}, "x-": {"dirToCountMap":{}}, "y+": {"dirToCountMap":{}}, "y-": {"dirToCountMap":{}}, "z+": {"dirToCountMap":{}}, "z-": {"dirToCountMap":{}}})
+        #tilesDict["Empty_0"] = TileStats("Empty", 0, {"x+": {"dirToCountMap":{}}, "x-": {"dirToCountMap":{}}, "y+": {"dirToCountMap":{}}, "y-": {"dirToCountMap":{}}, "z+": {"dirToCountMap":{}}, "z-": {"dirToCountMap":{}}})
             
         testTile = TileStats("test tile", 2, {
             "up": ["one", "two"]
@@ -114,22 +114,22 @@ class WFCAnalyzeOperator(bpy.types.Operator):
                     
                 neighbourTileRef = gridDict[locStr]
                 
-                if neighbourTileRef.nameWithRot == "NotEmpty_0":
-                    #print("It is not empty")
-                    #print(withRotName)
-                    oppositeIndex = i+1 if i%2 == 0 else i-1
-                    tilesDict[withRotName].mappings[directionKeys[i]]["dirToCountMap"]["Empty_0"] = 1
-                    tilesDict["Empty_0"].mappings[directionKeys[oppositeIndex]]["dirToCountMap"][withRotName] = 1
-                    
-                    continue
+                #if neighbourTileRef.nameWithRot == "NotEmpty_0":
+                #    #print("It is not empty")
+                #    #print(withRotName)
+                #    oppositeIndex = i+1 if i%2 == 0 else i-1
+                #    tilesDict[withRotName].mappings[directionKeys[i]]["dirToCountMap"]["Empty_0"] = 1
+                #    tilesDict["Empty_0"].mappings[directionKeys[oppositeIndex]]["dirToCountMap"][withRotName] = 1
+                #    continue
+                
                 if neighbourTileRef.nameWithRot not in tilesDict[withRotName].mappings[directionKeys[i]]["dirToCountMap"].keys():
                     tilesDict[withRotName].mappings[directionKeys[i]]["dirToCountMap"][neighbourTileRef.nameWithRot] = 1
                 else:
                     tilesDict[withRotName].mappings[directionKeys[i]]["dirToCountMap"][neighbourTileRef.nameWithRot] += 1
                 
         
-        for i in range(0, 6):
-            tilesDict["Empty_0"].mappings[directionKeys[i]]["dirToCountMap"]["Empty_0"] = 1
+        #for i in range(0, 6):
+        #    tilesDict["Empty_0"].mappings[directionKeys[i]]["dirToCountMap"]["Empty_0"] = 1
     
         
         for k1,v1 in tilesDict.items():
@@ -141,8 +141,8 @@ class WFCAnalyzeOperator(bpy.types.Operator):
                     v2["dirToCountMap"][k3] /= sum
                         
         
-        if "NotEmpty_0" in tilesDict.keys():
-            del tilesDict["NotEmpty_0"]
+        #if "NotEmpty_0" in tilesDict.keys():
+        #    del tilesDict["NotEmpty_0"]
         
         jsonDict = {}
         for k,v in tilesDict.items():

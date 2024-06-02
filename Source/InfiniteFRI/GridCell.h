@@ -7,6 +7,7 @@
 #include "GridCell.generated.h"
 
 class AFRIGenerator;
+class AStaticMeshActor;
 
 /**
  * 
@@ -39,6 +40,9 @@ public:
 
 	UPROPERTY()
 	float entropy = 99999;
+
+	UPROPERTY()
+	AStaticMeshActor* staticMeshActorRef = nullptr;
 
 public:
 

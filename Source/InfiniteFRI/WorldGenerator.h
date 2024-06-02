@@ -33,6 +33,9 @@ public:
 
 	TQueue<FVector> generatorLocationsQueue;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool automaticRadiusGeneration = true;
+
 	UPROPERTY()
 	TSet<FVector> generatorLocations;
 
@@ -47,6 +50,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int generatorSize = 9;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int tileSize = 200;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int stride = 7;
@@ -83,5 +89,14 @@ public:
 
 	UFUNCTION()
 	UGridCell* GetCellAtWorldLocation(AFRIGenerator* askingGenerator, const FIntVector& location);
+
+	UFUNCTION()
+	void SetCellAt(const FIntVector& location, UGridCell* newCell);
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnAndLaunchGeneratorAtUnitLocation(const FIntVector& location);
+
+	UFUNCTION(BlueprintCallable)
+	void DestroyTilesAtUnitLocation(const FIntVector& location);
 
 };

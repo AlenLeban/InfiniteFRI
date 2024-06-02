@@ -17,7 +17,7 @@ class FGeneratorRunnable : public FRunnable
 
 public:
 
-	FGeneratorRunnable(UWorld* world, AFRIGenerator* generatorR, AWorldGenerator* worldGeneratorR, const FVector& loc);
+	FGeneratorRunnable(UWorld* world, AFRIGenerator* generatorR, AWorldGenerator* worldGeneratorR);
 
 	virtual ~FGeneratorRunnable() override;
 
@@ -45,9 +45,6 @@ private:
 
 	UPROPERTY()
 	AWorldGenerator* worldGeneratorRef;
-
-	UPROPERTY()
-	FVector location;
 
 	UPROPERTY()
 	FMainThreadDelegate mainThreadDelegate;

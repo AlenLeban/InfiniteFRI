@@ -182,7 +182,7 @@ void UGridCell::CollapseToEmptyState()
 {
 	states.Empty();
 	states.Add(generatorRef->tileStatsDTRowNames.Num()-1); // last one is empty
-	isCollapsed = true;
+	isCollapsed = false;
 }
 
 float UGridCell::GetEntropy()
@@ -220,10 +220,8 @@ float UGridCell::GetEntropy()
 
 void UGridCell::CollapseToState(int state, bool markCollapsed)
 {
-	int collapsedState = state;
 	states.Empty();
-	states.Add(collapsedState);
+	states.Add(state);
 	areStatesDirty = true;
 	isCollapsed = markCollapsed;
-
 }

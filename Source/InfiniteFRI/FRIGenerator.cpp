@@ -34,7 +34,7 @@ void AFRIGenerator::Tick(float DeltaTime)
 
 }
 
-int AFRIGenerator::GenerateFRI(TArray<AFRIGenerator*> neighborGrids, bool materialize)
+int AFRIGenerator::GenerateFRI(bool materialize)
 {
 	if (tileNameToSMDT == nullptr) {
 		UE_LOG(LogTemp, Error, TEXT("tileNameToSMDT not set"));
@@ -43,13 +43,22 @@ int AFRIGenerator::GenerateFRI(TArray<AFRIGenerator*> neighborGrids, bool materi
 	if (isLogging)
 		UE_LOG(LogTemp, Log, TEXT("GenerateFRI"));
 	bool wasCollapseSuccessful = false;
-	int retries = -1;
 	while (!wasCollapseSuccessful && retries < maxRetries) {
+		UpdateProgressVisual();
 		retries++;
 		UE_LOG(LogTemp, Warning, TEXT("Collapsing, retries: %d"), retries);
 		InitializeGrid();
-		CopyNeighborGrids();
+		bool wasSuccessfulCopy = CopyConnectToGridTiles();
+		if (!wasSuccessfulCopy) {
+			UE_LOG(LogTemp, Error, TEXT("Unsuccessful copy of neighbor cells"));
+			retries = maxRetries;
+			break;
+		}
 		
+		if (generatorWorldIntVector == FIntVector(5, 0, 0)) {
+			break;
+		}
+
 		wasCollapseSuccessful = StartCollapsing();
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Retry count: %d"), retries);
@@ -63,6 +72,7 @@ int AFRIGenerator::GenerateFRI(TArray<AFRIGenerator*> neighborGrids, bool materi
 			CopyCellsToWorldGenerator();
 		}
 	}
+	OnGeneratorFinished();
 	return retries;
 }
 
@@ -76,6 +86,7 @@ void AFRIGenerator::CollapseEverythingToEmpty()
 
 void AFRIGenerator::InitializeGrid()
 {
+	DrawDebugBox(GetWorld(), GetActorLocation() - FVector(gridCellSize / 2) + FVector(gridWidth, gridLength, gridHeight) / 2 * gridCellSize, FVector(gridWidth, gridLength, gridHeight) * gridCellSize / 2, FColor::Cyan, false, 5, (uint8)0U, 5);
 	UE_LOG(LogTemp, Log, TEXT("InitializeGrid"));
 	gridCells.Empty();
 	cellHeap.Empty();
@@ -96,38 +107,24 @@ void AFRIGenerator::InitializeGrid()
 			}
 		}
 	}
+
 	tileStatsDTRowNames = tileStatsDT->GetRowNames();
 	PrecomputeEntropyOfAllStates();
 	cellHeap.Heapify(UGridCell::gridCellPredicate);
-	/*FIntVector startingFloorTileLocation = FIntVector(gridWidth / 2, gridLength / 2, 0);
-	CollapseCellAt(startingFloorTileLocation);
-	UpdateCellsFromLocation(startingFloorTileLocation);*/
 
-	/*for (int i = 0; i < gridWidth; i++) {
-		for (int j = 0; j < gridLength; j++) {
-			for (int k = 0; k < gridHeight; k++) {
-				if (i == 0 || i == gridWidth - 1 || j == 0 || j == gridLength - 1 || k == 0 || k == gridHeight - 1) {
-					FIntVector location(i, j, k);
-					CollapseCellAtToEmptyState(location);
-					UpdateCellsFromLocation(location);
-				}
-			}
-		}
-	}*/
 	UE_LOG(LogTemp, Log, TEXT("Finished initializing grid"));
 }
 
 bool AFRIGenerator::StartCollapsing()
 {
 	FIntVector cellLocation;
-	ChooseRandomCell(cellLocation);
-	CollapseCellAt(cellLocation);
-	UpdateCellsFromLocation(cellLocation);
+	//ChooseRandomCell(cellLocation);
+	//CollapseCellAt(cellLocation);
+	//UpdateCellsFromLocation(cellLocation);
 	int loopCount = 0;
 	int maxLoopCount = gridWidth * gridLength * gridHeight * 2;
 	while (cellHeap.Num() > 0 && loopCount < maxLoopCount) {
 		ChooseLowestEntropyCell(cellLocation);
-		//UE_LOG(LogTemp, Log, TEXT("Collapsing cell at: %s"), *cellLocation.ToString());
 		CollapseCellAt(cellLocation);
 		bool updateSuccess = UpdateCellsFromLocation(cellLocation);
 		if (!updateSuccess) {
@@ -295,6 +292,7 @@ void AFRIGenerator::MaterializeCell(UGridCell* cell)
 	FNameToStaticMeshRow* sm = tileNameToSMDT->FindRow<FNameToStaticMeshRow>(cellStateName, "context");
 	if (MeshComponent && sm != nullptr && sm->staticMesh.Num() > 0)
 	{
+		cell->staticMeshActorRef = MyNewActor;
 		int randomIndex = FMath::RandRange(0, sm->staticMesh.Num() - 1);
 		MeshComponent->SetStaticMesh(sm->staticMesh[randomIndex]);
 	}
@@ -329,7 +327,6 @@ void AFRIGenerator::CollapseCellAtToState(const FIntVector& location, int state,
 		UE_LOG(LogTemp, Warning, TEXT("Collapsed cell at %s"), *location.ToString());
 	UGridCell* cellToCollapse = GetGridCellAt(location);
 	cellToCollapse->CollapseToState(state, markCollapsed);
-	//MaterializeCell(cellToCollapse);
 	int heapIndex = 0;
 	cellHeap.Find(cellToCollapse, heapIndex);
 	if (!cellHeap.IsValidIndex(heapIndex)) {
@@ -339,21 +336,23 @@ void AFRIGenerator::CollapseCellAtToState(const FIntVector& location, int state,
 	cellHeap.HeapRemoveAt(heapIndex, UGridCell::gridCellPredicate);
 }
 
-void AFRIGenerator::CopyConnectToGridTiles()
+bool AFRIGenerator::CopyConnectToGridTiles()
 {
 	int copyIndent = 0;
 	for (int i = 0; i < gridWidth; i++) {
 		for (int j = 0; j < gridLength; j++) {
 			for (int k = 0; k < gridHeight; k++) {
 				// if it's a tile at the edge of the generator grid
-				if (i == copyIndent || j == copyIndent || k == copyIndent || i == gridWidth - (copyIndent+1) || j == gridLength - (copyIndent + 1) || k == gridHeight - (copyIndent + 1)) {
+				if (i == copyIndent || j == copyIndent || k == copyIndent || i == gridWidth - (copyIndent + 1) || j == gridLength - (copyIndent + 1) || k == gridHeight - (copyIndent + 1)) {
 					FIntVector cellRelativeIntLocation = FIntVector(i, j, k);
 					//UE_LOG(LogTemp, Log, TEXT("Generator world int vector: %s"), *generatorWorldIntVector.ToString());
 					FIntVector tileIntWorldLocation = generatorWorldIntVector + cellRelativeIntLocation;
+					//UE_LOG(LogTemp, Log, TEXT("GeneratorWorldIntVector: %s"), *generatorWorldIntVector.ToString());
+					//UE_LOG(LogTemp, Log, TEXT("Tile location: %s"), *tileIntWorldLocation.ToString());
 					UGridCell* copyingCell = worldGeneratorRef->GetCellAtWorldLocation(this, tileIntWorldLocation);
 					if (copyingCell == nullptr) {
 						// might not be a collapsed cell or generator not available at all
-						//UE_LOG(LogTemp, Warning, TEXT("Copying cell == nullptr"));
+						//UE_LOG(LogTemp, Warning, TEXT("Copying cell == nullptr at %s"), *tileIntWorldLocation.ToString());
 						continue;
 					}
 					if (!copyingCell->states.IsValidIndex(0)) {
@@ -366,12 +365,14 @@ void AFRIGenerator::CopyConnectToGridTiles()
 					bool successfulUpdate = UpdateCellsFromLocation(cellRelativeIntLocation);
 					if (!successfulUpdate) {
 						UE_LOG(LogTemp, Error, TEXT("Unsuccessful update"));
+						return false;
 					}
 					//UE_LOG(LogTemp, Log, TEXT("Successful copy"));
 				}
 			}
 		}
 	}
+	return true;
 
 	//for (int i = 0; i < gridWidth; i++) {
 	//	for (int j = 0; j < gridLength; j++) {
@@ -441,7 +442,10 @@ void AFRIGenerator::CopyCellsToWorldGenerator()
 			for (int k = 0; k < gridHeight; k++) {
 				int cellIndex = GetIndexFromLocation(FIntVector(i, j, k));
 				FIntVector mapCellLocation = generatorWorldIntVector + FIntVector(i, j, k);
-				worldGeneratorRef->gridCellsMap.Add(TTuple<FIntVector, UGridCell*>(mapCellLocation, gridCells[cellIndex]));
+				if (!gridCells[cellIndex]->isCollapsed) {
+					continue;
+				}
+				worldGeneratorRef->SetCellAt(mapCellLocation, gridCells[cellIndex]);
 			}
 		}
 	}
