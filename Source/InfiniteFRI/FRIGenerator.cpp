@@ -236,6 +236,7 @@ bool AFRIGenerator::UpdateCellsFromLocation(const FIntVector& cellLocation)
 		for (int i = 0; i < 6; i++) {
 			FIntVector neighborLocation = cellToCheck->location + FIntVector(xOffsets[i], yOffsets[i], zOffsets[i]);
 			if (!IsValidCellLocation(neighborLocation)) {
+				//didCheckedCellChange |= cellToCheck->UpdateStatesWithNeighbor(nullptr, i);
 				continue;
 			}
 			int neighborCellIndex = cellToCheckIndex + neighborIndexOffsets[i];

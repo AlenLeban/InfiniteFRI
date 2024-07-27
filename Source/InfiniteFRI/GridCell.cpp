@@ -111,7 +111,7 @@ bool UGridCell::UpdateStatesWithNeighbor(UGridCell* neighborCell, int directionI
 	FString mappingKeys[6] = { "x+", "x-", "y+", "y-", "z+", "z-" };
 	if (generatorRef->isLogging)
 		UE_LOG(LogTemp, Warning, TEXT("Direction: %s"), *mappingKeys[directionIndex]);
-	if (neighborCell->states.Num() == 0) {
+	if (neighborCell != nullptr && neighborCell->states.Num() == 0) {
 		if (generatorRef->isLogging)
 			UE_LOG(LogTemp, Error, TEXT("Cell has no state, returning false"));
 		return false;
@@ -120,7 +120,7 @@ bool UGridCell::UpdateStatesWithNeighbor(UGridCell* neighborCell, int directionI
 	bool didStatesChange = false;
 	if (generatorRef->isLogging)
 		UE_LOG(LogTemp, Warning, TEXT("Printing neighbor's states: "));
-	neighborCell->LogStates();
+	//LogStates();
 	while (stateIndex < states.Num()) {
 		int state = states[stateIndex];
 		//UE_LOG(LogTemp, Warning, TEXT("Checking state %d"), state);
@@ -139,15 +139,25 @@ bool UGridCell::UpdateStatesWithNeighbor(UGridCell* neighborCell, int directionI
 		TSet<FString> keys;
 		mappingValues.dirToCountMap.GetKeys(keys);
 		bool wasMatchFound = false;
-		
-		for (int i = 0; i < neighborCell->states.Num(); i++) {
-			int neighborState = neighborCell->states[i];
-			FName neighborRowName = generatorRef->tileStatsDTRowNames[neighborState];
-			
-			if (keys.Contains(neighborRowName.ToString())) {
+		if (neighborCell == nullptr) {
+			// assume empty cell if checking out of bounds
+			FName stateName = generatorRef->tileStatsDTRowNames.Last();
+			if (keys.Contains(stateName.ToString())) {
+				UE_LOG(LogTemp, Log, TEXT("stateName: %s"), *stateName.ToString());
 				//UE_LOG(LogTemp, Warning, TEXT("Neighbor has a matching state: %d"), neighborState);
 				wasMatchFound = true;
-				break;
+			}
+		}
+		else {
+			for (int i = 0; i < neighborCell->states.Num(); i++) {
+				int neighborState = neighborCell->states[i];
+				FName neighborRowName = generatorRef->tileStatsDTRowNames[neighborState];
+			
+				if (keys.Contains(neighborRowName.ToString())) {
+					//UE_LOG(LogTemp, Warning, TEXT("Neighbor has a matching state: %d"), neighborState);
+					wasMatchFound = true;
+					break;
+				}
 			}
 		}
 
